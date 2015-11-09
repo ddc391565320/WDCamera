@@ -1,0 +1,51 @@
+PODS:
+  - MJExtension (2.5.8)
+  - MJRefresh (2.4.7)
+  - REFormattedNumberField (1.1.5)
+  - RETableViewManager (1.6):
+    - REFormattedNumberField (~> 1.1.5)
+    - REValidation (~> 0.1.4)
+  - REValidation (0.1.4)
+  - SDWebImage (3.7.3):
+    - SDWebImage/Core (= 3.7.3)
+  - SDWebImage/Core (3.7.3)
+
+DEPENDENCIES:
+  - MJExtension (from `https://github.com/CoderMJLee/MJExtension`)
+  - MJRefresh (from `https://github.com/CoderMJLee/MJRefresh`)
+  - RETableViewManager (from `https://github.com/romaonthego/RETableViewManager`)
+  - SDWebImage (from `https://github.com/rs/SDWebImage`)
+
+EXTERNAL SOURCES:
+  MJExtension:
+    :git: https://github.com/CoderMJLee/MJExtension
+  MJRefresh:
+    :git: https://github.com/CoderMJLee/MJRefresh
+  RETableViewManager:
+    :git: https://github.com/romaonthego/RETableViewManager
+  SDWebImage:
+    :git: https://github.com/rs/SDWebImage
+
+CHECKOUT OPTIONS:
+  MJExtension:
+    :commit: 276adf8d9564b1ffde291ec676830875f85f7262
+    :git: https://github.com/CoderMJLee/MJExtension
+  MJRefresh:
+    :commit: c4941f19853045a9467b3ec6751d2401cd7ec748
+    :git: https://github.com/CoderMJLee/MJRefresh
+  RETableViewManager:
+    :commit: e54080fb6af889017fe679ac1d585cf04b1da786
+    :git: https://github.com/romaonthego/RETableViewManager
+  SDWebImage:
+    :commit: 5a5c65d7996c09931a3384e86a8b96ff8f4ac5e7
+    :git: https://github.com/rs/SDWebImage
+
+SPEC CHECKSUMS:
+  MJExtension: e6f30c738b7618552ee5563fcf4eadf552f997e0
+  MJRefresh: 6eb2f61338f89f64fd628fd43debcf479381ff59
+  REFormattedNumberField: be3d55dd709f65541fb26b7e1709da07903147f8
+  RETableViewManager: 9667ecb29c005c32df40a1dd1828224840a351a2
+  REValidation: 38c4de1be58455f8b00aab208ac80db316a66b7f
+  SDWebImage: 1d2b1a1efda1ade1b00b6f8498865f8ddedc8a84
+
+COCOAPODS: 0.36.1
