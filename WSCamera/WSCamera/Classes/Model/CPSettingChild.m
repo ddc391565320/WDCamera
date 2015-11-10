@@ -18,6 +18,7 @@
         child.isSwitch = isSwitch;
         child.isArrow = isArrow;
         child.destVc = detstVC;
+       
         return child;
     }
 }

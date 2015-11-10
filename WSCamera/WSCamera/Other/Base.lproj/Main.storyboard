@@ -138,11 +138,11 @@
                                 </constraints>
                             </imageView>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="NT5-dH-dVW">
-                                <rect key="frame" x="514" y="562" width="86" height="38"/>
+                                <rect key="frame" x="540" y="572" width="60" height="28"/>
                                 <animations/>
                                 <constraints>
-                                    <constraint firstAttribute="height" constant="38" id="fMg-hE-65u"/>
-                                    <constraint firstAttribute="width" constant="86" id="idj-nW-FEU"/>
+                                    <constraint firstAttribute="height" constant="28" id="fMg-hE-65u"/>
+                                    <constraint firstAttribute="width" constant="60" id="idj-nW-FEU"/>
                                 </constraints>
                                 <state key="normal" title="设置">
                                     <color key="titleColor" white="0.66666666666666663" alpha="1" colorSpace="calibratedWhite"/>
@@ -167,6 +167,21 @@
                                     <action selector="takeButtonClick:" destination="BYZ-38-t0r" eventType="touchUpInside" id="1hg-k0-gPj"/>
                                 </connections>
                             </button>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="zPC-Iz-frX">
+                                <rect key="frame" x="480" y="572" width="60" height="28"/>
+                                <animations/>
+                                <constraints>
+                                    <constraint firstAttribute="width" constant="60" id="W3Q-22-SVI"/>
+                                    <constraint firstAttribute="height" constant="28" id="pR6-fG-WJi"/>
+                                </constraints>
+                                <state key="normal" title="相册">
+                                    <color key="titleColor" white="0.66666666666666663" alpha="1" colorSpace="calibratedWhite"/>
+                                    <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
+                                </state>
+                                <connections>
+                                    <action selector="photoBtnClick:" destination="BYZ-38-t0r" eventType="touchUpInside" id="Cid-gC-1Am"/>
+                                </connections>
+                            </button>
                         </subviews>
                         <animations/>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
@@ -187,6 +202,8 @@
                             <constraint firstItem="V0J-ez-V97" firstAttribute="leading" secondItem="8bC-Xf-vdC" secondAttribute="leading" id="Sl1-SU-Ltm"/>
                             <constraint firstItem="wfy-db-euE" firstAttribute="top" secondItem="V0J-ez-V97" secondAttribute="bottom" id="d4v-KV-Iqn"/>
                             <constraint firstItem="xng-vI-i63" firstAttribute="top" secondItem="7L2-03-8Io" secondAttribute="bottom" id="epy-aC-gk4"/>
+                            <constraint firstItem="NT5-dH-dVW" firstAttribute="leading" secondItem="zPC-Iz-frX" secondAttribute="trailing" id="gR0-BC-hPT"/>
+                            <constraint firstItem="wfy-db-euE" firstAttribute="top" secondItem="zPC-Iz-frX" secondAttribute="bottom" id="lG4-K3-D3r"/>
                             <constraint firstItem="Qdt-sM-Ijb" firstAttribute="leading" secondItem="8bC-Xf-vdC" secondAttribute="leading" id="leU-nA-1wA"/>
                             <constraint firstAttribute="trailing" secondItem="xng-vI-i63" secondAttribute="trailing" id="nVE-YY-Yrw"/>
                             <constraint firstAttribute="trailing" secondItem="7L2-03-8Io" secondAttribute="trailing" id="w52-uC-9Ig"/>
@@ -312,7 +329,7 @@
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="9NC-1i-qgi" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="1801" y="-395"/>
+            <point key="canvasLocation" x="1869" y="-646"/>
         </scene>
         <!--Navigation View Controller-->
         <scene sceneID="YGT-YR-Iw9">

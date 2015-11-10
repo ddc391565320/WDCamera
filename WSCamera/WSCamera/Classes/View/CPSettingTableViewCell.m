@@ -39,4 +39,11 @@
     
 }
 
+- (IBAction)switchValueChange:(UISwitch *)sender
+{
+        if(self.switchValueChange)
+        {
+            self.switchValueChange(sender.isOn);
+        }
+}
 @end

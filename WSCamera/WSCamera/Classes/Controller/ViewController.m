@@ -13,10 +13,13 @@
 #import "MBProgressHUD+MJ.h"
 #import "CPHeaders.h"
 #import "WSSettingViewController.h"
+#import <LocalAuthentication/LocalAuthentication.h>
+#import "ZLPhoto.h"
+
 
 typedef void(^PropertyChangeBlock)(AVCaptureDevice *captureDevice);
 
-@interface ViewController ()
+@interface ViewController ()<UIImagePickerControllerDelegate,UINavigationControllerDelegate,ZLPhotoPickerViewControllerDelegate>
 
 @property (strong,nonatomic) AVCaptureSession *captureSession;//负责输入和输出设备之间的数据传递
 @property (strong,nonatomic) AVCaptureDeviceInput *captureDeviceInput;//负责从AVCaptureDevice获得输入数据
@@ -55,7 +58,169 @@ typedef void(^PropertyChangeBlock)(AVCaptureDevice *captureDevice);
     
     UILongPressGestureRecognizer *longPress = [[UILongPressGestureRecognizer alloc] initWithTarget:self action:@selector(longPress:)];
     [self.touchBtn addGestureRecognizer:longPress];
+    
+
 }
+
+- (void)authenticateUser
+{
+    //初始化上下文对象
+    LAContext* context = [[LAContext alloc] init];
+    //错误对象
+    NSError* error = nil;
+    NSString* result = @"需要指纹验证.";
+    
+    //首先使用canEvaluatePolicy 判断设备支持状态
+    if ([context canEvaluatePolicy:LAPolicyDeviceOwnerAuthenticationWithBiometrics error:&error]) {
+        
+        //支持指纹验证
+        [context evaluatePolicy:LAPolicyDeviceOwnerAuthenticationWithBiometrics localizedReason:result reply:^(BOOL success, NSError *error) {
+            if (success) {
+                //验证成功，主线程处理UI
+                NSLog(@"验证成功");
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    
+                });
+            }
+            else
+            {
+                NSLog(@"%@",error.localizedDescription);
+                switch (error.code) {
+                    case LAErrorSystemCancel:
+                    {
+                        NSLog(@"Authentication was cancelled by the system");
+                        //切换到其他APP，系统取消验证Touch ID
+                        break;
+                    }
+                    case LAErrorUserCancel:
+                    {
+                        NSLog(@"Authentication was cancelled by the user");
+                        //用户取消验证Touch ID
+                        break;
+                    }
+                    case LAErrorUserFallback:
+                    {
+                        NSLog(@"User selected to enter custom password");
+                        [[NSOperationQueue mainQueue] addOperationWithBlock:^{
+                            //用户选择输入密码，切换主线程处理
+                        }];
+                        break;
+                    }
+                    default:
+                    {
+                        [[NSOperationQueue mainQueue] addOperationWithBlock:^{
+                            //其他情况，切换主线程处理
+                        }];
+                        break;
+                    }
+                }
+            }
+        }];
+    }
+    else
+    {
+        //不支持指纹识别，LOG出错误详情
+        
+        switch (error.code) {
+            case LAErrorTouchIDNotEnrolled:
+            {
+                NSLog(@"TouchID is not enrolled");
+                break;
+            }
+            case LAErrorPasscodeNotSet:
+            {
+                NSLog(@"A passcode has not been set");
+                break;
+            }
+            default:
+            {
+                NSLog(@"TouchID not available");
+                break;
+            }
+        }
+        
+        NSLog(@"%@",error.localizedDescription);
+    }
+}
+
+
+-(void)viewWillAppear:(BOOL)animated
+{
+    [super viewWillAppear:animated];
+    [self.navigationController setNavigationBarHidden:YES animated:NO];
+    
+    [self setupCamera];
+}
+
+- (void)setupCamera
+{
+    //初始化会话
+    
+    
+    _captureSession=[[AVCaptureSession alloc]init];
+    if ([_captureSession canSetSessionPreset:AVCaptureSessionPreset1280x720])
+    {//设置分辨率
+        _captureSession.sessionPreset=AVCaptureSessionPreset1280x720;
+    }
+    //获得输入设备
+    AVCaptureDevice *captureDevice=[self getCameraDeviceWithPosition:AVCaptureDevicePositionBack];//取得后置摄像头
+    if (!captureDevice) {
+        NSLog(@"取得后置摄像头时出现问题.");
+        return;
+    }
+    
+    NSError *error=nil;
+    //根据输入设备初始化设备输入对象，用于获得输入数据
+    _captureDeviceInput=[[AVCaptureDeviceInput alloc]initWithDevice:captureDevice error:&error];
+    if (error) {
+        NSLog(@"取得设备输入对象时出错，错误原因：%@",error.localizedDescription);
+        return;
+    }
+    //初始化设备输出对象，用于获得输出数据
+    _captureStillImageOutput=[[AVCaptureStillImageOutput alloc]init];
+    NSDictionary *outputSettings = @{AVVideoCodecKey:AVVideoCodecJPEG};
+    [_captureStillImageOutput setOutputSettings:outputSettings];//输出设置
+    
+    //将设备输入添加到会话中
+    if ([_captureSession canAddInput:_captureDeviceInput]) {
+        [_captureSession addInput:_captureDeviceInput];
+    }
+    
+    //将设备输出添加到会话中
+    if ([_captureSession canAddOutput:_captureStillImageOutput]) {
+        [_captureSession addOutput:_captureStillImageOutput];
+    }
+    
+    //创建视频预览层，用于实时展示摄像头状态
+    _captureVideoPreviewLayer=[[AVCaptureVideoPreviewLayer alloc]initWithSession:self.captureSession];
+    
+    CALayer *layer=self.viewContainer.layer;
+    layer.masksToBounds=YES;
+    
+    _captureVideoPreviewLayer.frame=layer.bounds;
+    _captureVideoPreviewLayer.videoGravity=AVLayerVideoGravityResizeAspectFill;//填充模式
+    //将视频预览层添加到界面中
+    //[layer addSublayer:_captureVideoPreviewLayer];
+    [layer insertSublayer:_captureVideoPreviewLayer below:self.focusCursor.layer];
+    
+    [self addNotificationToCaptureDevice:captureDevice];
+    [self addGenstureRecognizer];
+    [self setFlashModeButtonStatus];
+    
+}
+
+-(void)viewDidAppear:(BOOL)animated
+{
+    [super viewDidAppear:animated];
+    [self.captureSession startRunning];
+}
+
+-(void)viewDidDisappear:(BOOL)animated{
+    [super viewDidDisappear:animated];
+    [self.captureSession stopRunning];
+}
+
+
 
 - (void)longPress:(UILongPressGestureRecognizer *)panGesture
 {
@@ -111,73 +276,6 @@ typedef void(^PropertyChangeBlock)(AVCaptureDevice *captureDevice);
 }
 
 
--(void)viewWillAppear:(BOOL)animated
-{
-    [super viewWillAppear:animated];
-    [self.navigationController setNavigationBarHidden:YES animated:NO];
-    //初始化会话
-    _captureSession=[[AVCaptureSession alloc]init];
-    if ([_captureSession canSetSessionPreset:AVCaptureSessionPreset1280x720])
-    {//设置分辨率
-        _captureSession.sessionPreset=AVCaptureSessionPreset1280x720;
-    }
-    //获得输入设备
-    AVCaptureDevice *captureDevice=[self getCameraDeviceWithPosition:AVCaptureDevicePositionBack];//取得后置摄像头
-    if (!captureDevice) {
-        NSLog(@"取得后置摄像头时出现问题.");
-        return;
-    }
-    
-    NSError *error=nil;
-    //根据输入设备初始化设备输入对象，用于获得输入数据
-    _captureDeviceInput=[[AVCaptureDeviceInput alloc]initWithDevice:captureDevice error:&error];
-    if (error) {
-        NSLog(@"取得设备输入对象时出错，错误原因：%@",error.localizedDescription);
-        return;
-    }
-    //初始化设备输出对象，用于获得输出数据
-    _captureStillImageOutput=[[AVCaptureStillImageOutput alloc]init];
-    NSDictionary *outputSettings = @{AVVideoCodecKey:AVVideoCodecJPEG};
-    [_captureStillImageOutput setOutputSettings:outputSettings];//输出设置
-    
-    //将设备输入添加到会话中
-    if ([_captureSession canAddInput:_captureDeviceInput]) {
-        [_captureSession addInput:_captureDeviceInput];
-    }
-    
-    //将设备输出添加到会话中
-    if ([_captureSession canAddOutput:_captureStillImageOutput]) {
-        [_captureSession addOutput:_captureStillImageOutput];
-    }
-    
-    //创建视频预览层，用于实时展示摄像头状态
-    _captureVideoPreviewLayer=[[AVCaptureVideoPreviewLayer alloc]initWithSession:self.captureSession];
-    
-    CALayer *layer=self.viewContainer.layer;
-    layer.masksToBounds=YES;
-    
-    _captureVideoPreviewLayer.frame=layer.bounds;
-    _captureVideoPreviewLayer.videoGravity=AVLayerVideoGravityResizeAspectFill;//填充模式
-    //将视频预览层添加到界面中
-    //[layer addSublayer:_captureVideoPreviewLayer];
-    [layer insertSublayer:_captureVideoPreviewLayer below:self.focusCursor.layer];
-    
-    [self addNotificationToCaptureDevice:captureDevice];
-    [self addGenstureRecognizer];
-    [self setFlashModeButtonStatus];
-}
-
--(void)viewDidAppear:(BOOL)animated{
-    [super viewDidAppear:animated];
-    [self.captureSession startRunning];
-    
-    [MBProgressHUD showError:@"静音!" toView:self.view andDelay:1.0];
-}
-
--(void)viewDidDisappear:(BOOL)animated{
-    [super viewDidDisappear:animated];
-    [self.captureSession stopRunning];
-}
 
 -(void)dealloc{
     [self removeNotification];
@@ -470,6 +568,70 @@ typedef void(^PropertyChangeBlock)(AVCaptureDevice *captureDevice);
         self.focusCursor.alpha=0;
         
     }];
+}
+- (IBAction)photoBtnClick:(id)sender
+{
+    ZLPhotoPickerViewController *pickerVc = [[ZLPhotoPickerViewController alloc] init];
+    // 默认显示相册里面的内容SavePhotos
+    pickerVc.status = PickerViewShowStatusCameraRoll;
+    pickerVc.delegate = self;
+    [pickerVc showPickerVc:self];
+}
+
+//当选择一张图片后进入这里
+-(void)imagePickerController:(UIImagePickerController*)picker didFinishPickingMediaWithInfo:(NSDictionary *)info
+
+{
+    NSString *type = [info objectForKey:UIImagePickerControllerMediaType];
+    //当选择的类型是图片
+    if ([type isEqualToString:@"public.image"])
+    {
+        //先把图片转成NSData
+        UIImage* image = [info objectForKey:@"UIImagePickerControllerOriginalImage"];
+        NSData *data;
+        if (UIImagePNGRepresentation(image) == nil)
+        {
+            data = UIImageJPEGRepresentation(image, 1.0);
+        }
+        else
+        {
+            data = UIImagePNGRepresentation(image);
+        }
+        
+        //图片保存的路径
+        //这里将图片放在沙盒的documents文件夹中
+        NSString * DocumentsPath = [NSHomeDirectory() stringByAppendingPathComponent:@"Documents"];
+        
+        //文件管理器
+        NSFileManager *fileManager = [NSFileManager defaultManager];
+        
+        //把刚刚图片转换的data对象拷贝至沙盒中 并保存为image.png
+        [fileManager createDirectoryAtPath:DocumentsPath withIntermediateDirectories:YES attributes:nil error:nil];
+        [fileManager createFileAtPath:[DocumentsPath stringByAppendingString:@"/image.png"] contents:data attributes:nil];
+        
+        //得到选择后沙盒中图片的完整路径
+//       NSString *filePath = [[NSString alloc] initWithFormat:@"%@%@",DocumentsPath,@"/image.png"];
+        
+        //关闭相册界面
+        [picker dismissModalViewControllerAnimated:YES];
+        
+        //创建一个选择后图片的小图标放在下方
+        //类似微薄选择图后的效果
+        UIImageView *smallimage = [[UIImageView alloc] initWithFrame:
+                                    CGRectMake(50, 120, 40, 40)];
+        
+        smallimage.image = image;
+//        加在视图中
+        [self.view addSubview:smallimage];
+        
+    }
+    
+}
+
+- (void)imagePickerControllerDidCancel:(UIImagePickerController *)picker
+{
+    NSLog(@"您取消了选择图片");
+    [picker dismissViewControllerAnimated:YES completion:nil];
 }
 
 @end

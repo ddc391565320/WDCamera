@@ -14,6 +14,7 @@
 #import "CPSettingTableViewCell.h"
 #import "CPSettingHeaderView.h"
 
+
 @interface WSSettingViewController ()<UITableViewDataSource,UITableViewDelegate>
 @property (weak, nonatomic) IBOutlet UITableView *tableView;
 @property (nonatomic, strong) NSArray *dataList;
@@ -46,8 +47,10 @@
     self.tableView.dataSource = self;
     [self setupSubViews];
     [self settingSetItems];
-    
 }
+
+
+
 
 - (void)setupSubViews
 {
@@ -90,7 +93,7 @@
     CPSetting *header1 = [CPSetting settingWithHeader:@"学生信息" children:arr1];
     
     
-    CPSettingChild *sw = [CPSettingChild childWithTitle:@"消息推送" subTitle:@"若关闭此功能将收不到上课提醒" detailText:@"" isSwitch:YES isArrow:NO DestVC:nil];
+    CPSettingChild *sw = [CPSettingChild childWithTitle:@"关闭指纹锁" subTitle:@"" detailText:@"" isSwitch:YES isArrow:NO DestVC:nil];
     
     //    NSString *version = [];
     CPSettingChild *checkVersion = [CPSettingChild childWithTitle:@"检查版本" subTitle:@"" detailText:@"0.1.0" isSwitch:NO isArrow:NO DestVC:nil];

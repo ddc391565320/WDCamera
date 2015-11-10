@@ -8,7 +8,7 @@
 
 #import <Foundation/Foundation.h>
 
-typedef void (^CPSettingItemBlock)();
+typedef void (^CPSettingItemBlock)(BOOL isON);
 
 @interface CPSettingChild : NSObject
 

@@ -9,6 +9,8 @@
 #import <UIKit/UIKit.h>
 @class CPSettingChild;
 
+typedef void(^SwitchValueChange)(BOOL isON);
+
 @interface CPSettingTableViewCell : UITableViewCell
 @property (weak, nonatomic) IBOutlet UILabel *titleLabel;
 @property (weak, nonatomic) IBOutlet UILabel *subTitleLabel;
@@ -16,6 +18,7 @@
 @property (weak, nonatomic) IBOutlet UIImageView *arrowImageView;
 @property (weak, nonatomic) IBOutlet UISwitch *pushSwitch;
 
+@property (nonatomic, copy) SwitchValueChange switchValueChange;
 @property (nonatomic, strong) CPSettingChild *child;
 
 + (instancetype)cellWithTableView:(UITableView *)tableView;
